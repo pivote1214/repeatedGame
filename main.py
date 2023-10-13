@@ -18,7 +18,7 @@ loss_list = [round(i * 0.2, 3) for i in range(1, 16)]
 error_list = [round(i * 0.01, 2) for i in range(1, 21)]
 
 # TODO: 計算済みのパラメータをスキップする処理を追加
-cr_table = pd.read_csv("result/cr_table.csv", index_col=0)
+cr_table = pd.read_csv("build/cr_table.csv", index_col=0)
 id_set = set(cr_table.index)
 
 # 利得計算
@@ -30,6 +30,7 @@ for delta in tqdm.tqdm(delta_list):
             for error in tqdm.tqdm(error_list, leave=False):
                 # idの設定
                 id = f"delta={delta}_gain={gain}_loss={loss}_error={error}"
+                
                 if id in id_set:
                     continue
                 # エラー率の設定
@@ -62,10 +63,10 @@ for delta in tqdm.tqdm(delta_list):
                     payoff_list[i].insert(0, i)
                 # TODO: IDの変更・小数点管理
                 # cr_table.csvに書き込み
-                with open("result/cr_table.csv", "a") as f:
+                with open("build/cr_table.csv", "a") as f:
                     f.write(','.join([str(i) for i in [id, delta, gain, loss, error, round(end_time - start_time, 3)]]) + "\n")
 
                 # csvファイルに書き込み
-                with open(f"result/payoff/payoff_{id}.csv", "w") as f:
+                with open(f"build/payoff/payoff_{id}.csv", "w") as f:
                     for row in payoff_list:
                         f.write(",".join([str(i) for i in row]) + "\n")
