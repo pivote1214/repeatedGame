@@ -17,8 +17,9 @@ gain_list = [round(i * 0.1, 3) for i in range(15, 16)]
 loss_list = [round(i * 0.2, 3) for i in range(1, 16)]
 error_list = [round(i * 0.01, 2) for i in range(1, 21)]
 
-# TODO: 計算済みのパラメータをスキップする処理を追加
-cr_table = pd.read_csv("build/cr_table.csv", index_col=0)
+# 結果の格納先の作成
+path = "/Users/pivote1214/Library/CloudStorage/OneDrive-筑波大学/ドキュメント/repeatedGame/"
+cr_table = pd.read_csv(path + "cr_table.csv", index_col=0)
 id_set = set(cr_table.index)
 
 # 利得計算
@@ -49,9 +50,12 @@ for delta in tqdm.tqdm(delta_list):
 
                 start_time = time.time()
                 for i in tqdm.tqdm(range(N), leave=False):
-                    for j in range(N):
-                        payoff_1, _ = automata.calculate_payoff(automaton_list[i], automaton_list[j], signals, delta, payoff_table)
+                    payoff_self = automata.calculate_payoff(automaton_list[i], automaton_list[i], signals, delta, payoff_table)
+                    payoff_list[i][i] = payoff_self[0]
+                    for j in range(i+1, N):
+                        payoff_1, payoff_2 = automata.calculate_payoff(automaton_list[i], automaton_list[j], signals, delta, payoff_table)
                         payoff_list[i][j] = payoff_1
+                        payoff_list[j][i] = payoff_2
 
                 end_time = time.time()
 
@@ -63,10 +67,10 @@ for delta in tqdm.tqdm(delta_list):
                     payoff_list[i].insert(0, i)
                 # TODO: IDの変更・小数点管理
                 # cr_table.csvに書き込み
-                with open("build/cr_table.csv", "a") as f:
+                with open(path + "cr_table.csv", "a") as f:
                     f.write(','.join([str(i) for i in [id, delta, gain, loss, error, round(end_time - start_time, 3)]]) + "\n")
 
                 # csvファイルに書き込み
-                with open(f"build/payoff/payoff_{id}.csv", "w") as f:
+                with open(path + f"payoff/payoff_{id}.csv", "w") as f:
                     for row in payoff_list:
                         f.write(",".join([str(i) for i in row]) + "\n")
