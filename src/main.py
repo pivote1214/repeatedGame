@@ -13,8 +13,8 @@ import automata
 automaton_list = automata.make_automaton()
 N = len(automaton_list)
 delta_list = [round(i, 2) for i in [0.90, 0.95, 0.99]]
-gain_list = [round(i * 0.1, 3) for i in range(15, 16)]
-loss_list = [round(i * 0.2, 3) for i in range(1, 16)]
+gain_list = [round(i * 0.1, 3) for i in range(5, 6)]
+loss_list = [round(i * 0.1, 3) for i in range(5, 6)]
 error_list = [round(i * 0.01, 2) for i in range(1, 21)]
 
 # 結果の格納先の作成
