@@ -142,6 +142,35 @@ def make_three_state_automaton() -> FiniteAutomaton:
     return three_state_automaton
 
 
+# k-MP戦略を作成
+def make_k_mp(k: int) -> FiniteAutomaton:
+    # 状態集合
+    states = tuple([i for i in range(1, k+2)])
+    # 初期状態
+    initial_state = 1
+    # 行動決定関数
+    action_function = dict()
+    for i in range(1, k+2):
+        if i == 1:
+            action_function[i] = "C"
+        else:
+            action_function[i] = "D"
+    # 状態遷移関数
+    transition_function = {}
+    for i in range(1, k+2):
+        if i == 1:
+            transition_function[(i, "g")] = 1
+            transition_function[(i, "b")] = 2
+        elif i == k + 1:
+            transition_function[(i, "g")] = 2
+            transition_function[(i, "b")] = 1
+        else:
+            transition_function[(i, "g")] = 2
+            transition_function[(i, "b")] = i + 1
+
+    return FiniteAutomaton(states, initial_state, action_function, transition_function)
+
+
 # 3状態以下の有限オートマトンを作成
 def make_automaton() -> FiniteAutomaton:
     automaton = []
@@ -234,3 +263,12 @@ def calculate_payoff(fa1: FiniteAutomaton, fa2: FiniteAutomaton, signals, delta,
     payoff_2 = X_2[0]
     
     return payoff_1, payoff_2
+
+
+# kMPのテスト
+if __name__ == "__main__":
+    fa1 = make_k_mp(3)
+    print(fa1.states)
+    print(fa1.initial_state)
+    print(fa1.action_function)
+    print(fa1.transition_function)
