@@ -13,20 +13,15 @@ from automata import make_automaton, make_k_mp, calculate_payoff
 automaton_list = make_automaton()
 automaton_list += [make_k_mp(k) for k in range(3, 6)]
 N = len(automaton_list)
-delta_list = [round(i, 2) for i in [0.90, 0.95, 0.99]]
-gain_list = [round(i * 0.1, 3) for i in range(5, 6)]
-loss_list = [round(i * 0.1, 3) for i in range(5, 6)]
+delta_list = [round(i, 2) for i in [0.95, 0.99]]
+gain_list = [round(i * 0.1, 3) for i in range(15, 16)]
+loss_list = [round(i * 0.1, 3) for i in range(2, 31, 2)]
 error_list = [round(i * 0.01, 2) for i in range(1, 21)]
 
 # 結果の格納先の作成
 path = "/Users/pivote1214/Library/CloudStorage/OneDrive-筑波大学/ドキュメント/repeatedGame/"
 cr_table = pd.read_csv(path + "cr_table.csv", index_col=0)
 id_set = set(cr_table.index)
-
-delta_list = [round(i, 2) for i in [0.90]]
-gain_list = [round(i * 0.1, 3) for i in range(5, 6)]
-loss_list = [round(i * 0.1, 3) for i in range(5, 6)]
-error_list = [round(i * 0.01, 2) for i in range(1, 3)]
 
 # 利得計算
 for delta in tqdm.tqdm(delta_list):
@@ -37,10 +32,12 @@ for delta in tqdm.tqdm(delta_list):
             for error in tqdm.tqdm(error_list, leave=False):
                 # idの設定
                 id = f"delta={delta}_gain={gain}_loss={loss}_error={error}"
-                # すでに計算済みの場合はスキップ
-                # if id in id_set:
-                #     continue
-
+                # payoffの読み込み
+                payoff = pd.read_csv(path + f"payoff/payoff_{id}.csv", index_col=0)
+                # indexとcolumnsのデータ型をintに変更
+                payoff.index = payoff.index.astype(int)
+                payoff.columns = payoff.columns.astype(int)
+                
                 # エラー率の設定
                 p, q, r, s = (1-error) ** 2, error * (1-error), error * (1-error), error ** 2
                 t, u, v, w = error * (1-error), error ** 2, (1-error) ** 2, error * (1-error)
@@ -52,30 +49,13 @@ for delta in tqdm.tqdm(delta_list):
                            (("D", "C"), ("b", "g")): u, (("D", "C"), ("b", "b")): t, 
                            (("D", "D"), ("g", "g")): s, (("D", "D"), ("g", "b")): r, 
                            (("D", "D"), ("b", "g")): q, (("D", "D"), ("b", "b")): p}
-
-                # 利得表の作成
-                payoff_list = [[None for _ in range(N)] for _ in range(N)]
-                start_time = time.time()
-                for i in range(N):
+                
+                for i in range(1054, 1057):
                     payoff_self = calculate_payoff(automaton_list[i], automaton_list[i], signals, delta, payoff_table)
-                    payoff_list[i][i] = payoff_self[0]
-                    for j in range(i+1, N):
+                    payoff.at[i+1, i+1] = payoff_self[0]
+                    for j in range(N):
                         payoff_1, payoff_2 = calculate_payoff(automaton_list[i], automaton_list[j], signals, delta, payoff_table)
-                        payoff_list[i][j] = payoff_1
-                        payoff_list[j][i] = payoff_2
-                end_time = time.time()
-
-                # 1行目に[1, 2, 3, ..., N]を追加
-                payoff_list.insert(0, [i for i in range(1, N+1)])
-                payoff_list[0].insert(0, None)
-                # 1列目に[1, 2, 3, ..., N]を追加
-                for i in range(1, N+1):
-                    payoff_list[i].insert(0, i)
-                # cr_table.csvに書き込み
-                with open(path + "cr_table.csv", "a") as f:
-                    f.write(','.join([str(i) for i in [id, delta, gain, loss, error, round(end_time - start_time, 3)]]) + "\n")
-
-                # csvファイルに書き込み
-                with open(path + f"payoff/payoff_{id}.csv", "w") as f:
-                    for row in payoff_list:
-                        f.write(",".join([str(i) for i in row]) + "\n")
+                        payoff.at[i+1, j+1] = payoff_1
+                        payoff.at[j+1, i+1] = payoff_2
+                        
+                payoff.to_csv(path + f"payoff/payoff_{id}.csv")
