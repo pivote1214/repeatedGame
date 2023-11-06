@@ -1,3 +1,13 @@
+# LaTeX
+*sample
+*.cls
+*.sty
+*.bst
+*.bib
+*latexmkrc
+*out/
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 .DS_Store
