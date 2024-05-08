@@ -1,4 +1,3 @@
-# %%
 from operator import le
 import tqdm
 import pandas as pd

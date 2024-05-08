@@ -19,7 +19,7 @@ loss_list = [round(i * 0.1, 3) for i in range(5, 6)]
 error_list = [round(i * 0.01, 2) for i in range(1, 21)]
 
 # 結果の格納先の作成
-path = "/Users/pivote1214/Library/CloudStorage/OneDrive-筑波大学/ドキュメント/repeatedGame/"
+path = "/Users/pivote1214/Documents/Codes/RepeatedGame/results/"
 cr_table = pd.read_csv(path + "cr_table.csv", index_col=0)
 id_set = set(cr_table.index)
 
